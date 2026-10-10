@@ -1,5 +1,6 @@
 /backend/vendor/
 /backend/var/
+/backend/config/reference.php
 /frontend/node_modules/
 /frontend/dist/
 /frontend/.angular/

@@ -2,6 +2,8 @@
 
 Инструкция запуска и журнал решений: [DECISIONS.md](DECISIONS.md).
 
+Таблицы, миграции и доступы к локальной MySQL: [DATABASE.md](DATABASE.md).
+
 Docker-инфраструктура находится в `docker/`, монолит Symfony — в `backend/`, Angular — в `frontend/`.
 
 ---

@@ -25,13 +25,18 @@ services:
       APP_ENV: dev
       APP_DEBUG: '1'
       APP_SECRET: ${APP_SECRET:-local-development-secret}
-      DATABASE_DSN: mysql:host=database;port=3306;dbname=${MYSQL_DATABASE:-growth};charset=utf8mb4
+      DATABASE_HOST: database
+      DATABASE_PORT: '3306'
+      DATABASE_NAME: ${MYSQL_DATABASE:-growth}
       DATABASE_USER: ${MYSQL_USER:-growth}
       DATABASE_PASSWORD: ${MYSQL_PASSWORD:-growth_local_password}
     volumes:
       - ../backend/src:/app/src
       - ../backend/config:/app/config
       - ../backend/public:/app/public
+      - ../backend/migrations:/app/migrations
+      - ../backend/tests:/app/tests:ro
+      - ../backend/phpunit.xml.dist:/app/phpunit.xml.dist:ro
     depends_on:
       database:
         condition: service_healthy
@@ -49,6 +54,9 @@ services:
       start_period: 30s
   database:
     image: mysql:8.0
+    command: ['--default-time-zone=+00:00']
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3307}:3306"
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-growth}
       MYSQL_USER: ${MYSQL_USER:-growth}

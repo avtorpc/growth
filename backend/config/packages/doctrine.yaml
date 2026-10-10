@@ -1,0 +1,10 @@
+doctrine:
+    dbal:
+        driver: pdo_mysql
+        host: '%env(DATABASE_HOST)%'
+        port: '%env(int:DATABASE_PORT)%'
+        dbname: '%env(DATABASE_NAME)%'
+        user: '%env(DATABASE_USER)%'
+        password: '%env(DATABASE_PASSWORD)%'
+        server_version: '8.0.46'
+        charset: utf8mb4
