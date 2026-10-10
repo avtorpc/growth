@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+    App\:
+        resource: '../src/'
+    PDO:
+        class: PDO
+        arguments:
+            - '%env(DATABASE_DSN)%'
+            - '%env(DATABASE_USER)%'
+            - '%env(DATABASE_PASSWORD)%'
+    App\Controller\HealthController:
+        tags: ['controller.service_arguments']

@@ -1,0 +1,4 @@
+.git
+backend/vendor
+backend/var
+frontend

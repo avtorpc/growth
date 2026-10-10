@@ -1,0 +1,7 @@
+/backend/vendor/
+/backend/var/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/
+/docker/.env
+.DS_Store
