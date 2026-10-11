@@ -42,7 +42,7 @@ final class OrderRepository
                         $existing = $this->connection->fetchAssociative($query.' FOR UPDATE', $params);
                     }
                     if ($existing === false) {
-                        $this->connection->insert('orders', ['shop_id' => $shopId] + $order);
+                        $this->connection->insert('orders', ['shop_id' => $shopId, 'outcome' => 'created'] + $order);
                         $id = (int) $this->connection->lastInsertId();
                         foreach ($items as $item) {
                             $this->connection->insert('order_items', ['order_id' => $id] + $item);
@@ -69,6 +69,7 @@ final class OrderRepository
                                 $message = 'Обновлён только статус заказа.';
                             }
                         }
+                        $this->connection->update('orders', ['outcome' => $outcome], ['id' => $id]);
                     }
                     return [
                         'outcome' => $outcome,

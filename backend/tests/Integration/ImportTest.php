@@ -48,9 +48,11 @@ final class ImportTest extends TestCase
         self::assertSame(['unknown_district', 'invalid_phone', 'unknown_status'],
             array_column(array_column(array_filter($first['results'], static fn (array $r): bool => $r['outcome'] === 'rejected'), 'reason'), 'code'));
         self::assertSame('duplicate_in_batch', $first['results'][9]['reason']['code']);
+        self::assertSame(['created'], $this->connection->fetchFirstColumn('SELECT DISTINCT outcome FROM orders WHERE shop_id = ?', [$this->shopId]));
         $second = $this->importer->import($this->shopId, TestData::fixture());
         self::assertSame(['created' => 0, 'updated' => 0, 'unchanged' => 7, 'duplicate' => 1, 'rejected' => 3], $second['summary']);
         self::assertSame(7, $this->orderCount());
+        self::assertSame(['unchanged'], $this->connection->fetchFirstColumn('SELECT DISTINCT outcome FROM orders WHERE shop_id = ?', [$this->shopId]));
         self::assertSame(7, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM order_items i JOIN orders o ON o.id = i.order_id WHERE o.shop_id = ?', [$this->shopId]));
         $expected = [
             'MP-1001' => [320000, 30000, 350000, 0], 'MP-1002' => [500000, 60000, 560000, 0],
@@ -81,7 +83,8 @@ final class ImportTest extends TestCase
         self::assertSame(150000, $result['results'][0]['order']['items_total_kopecks']);
         $after = $this->connection->fetchAssociative('SELECT * FROM orders WHERE shop_id = ?', [$this->shopId]);
         self::assertSame('accepted', $after['status']);
-        foreach (array_diff(array_keys($before), ['status', 'updated_at']) as $field) {
+        self::assertSame('updated', $after['outcome']);
+        foreach (array_diff(array_keys($before), ['status', 'updated_at', 'outcome']) as $field) {
             self::assertSame($before[$field], $after[$field], $field.' unexpectedly changed');
         }
         self::assertSame(150000, (int) $this->connection->fetchOne('SELECT unit_price_kopecks FROM order_items WHERE order_id = ?', [$before['id']]));
@@ -92,6 +95,7 @@ final class ImportTest extends TestCase
         self::assertSame('unchanged', $result['results'][0]['outcome']);
         self::assertSame('final_status_preserved', $result['results'][0]['reason']['code']);
         self::assertSame('delivered', $result['results'][0]['order']['status']);
+        self::assertSame('unchanged', $this->connection->fetchOne('SELECT outcome FROM orders WHERE shop_id = ?', [$this->shopId]));
     }
 
     public function testDuplicateInBatchDoesNotApplyNewStatusEvenWhenFirstWasRejected(): void

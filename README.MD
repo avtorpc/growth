@@ -71,6 +71,10 @@ curl -fsS http://localhost:8080/api/health
 {"status":"ok","database":"ok"}
 ```
 
+Поле `orders.outcome` хранит результат последней успешной обработки сохранённого
+заказа (`created`, `updated`, `unchanged`). Оно отдельно от статуса заказа и
+не является историей импортов. Подробнее — в [IMPORT.md](IMPORT.md).
+
 ## Импорт заказов через API
 
 Из корня проекта:
