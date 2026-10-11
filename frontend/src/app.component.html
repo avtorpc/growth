@@ -1,0 +1,78 @@
+<main>
+  <header>
+    <p class="eyebrow">GROWTH · ЦВЕТОЧНЫЙ МАГАЗИН</p>
+    <h1>Импорт заказов</h1>
+    <p class="intro">Загрузите заказы маркетплейса и проверьте результат каждой записи.</p>
+  </header>
+
+  <section class="import-panel" aria-labelledby="import-title" [attr.aria-busy]="loading()">
+    <div>
+      <p class="eyebrow muted">МАГАЗИН № 1</p>
+      <h2 id="import-title">Тестовый набор заказов</h2>
+      <p>Повторная загрузка обновляет статусы существующих заказов. Ошибка в одной записи не мешает обработке остальных.</p>
+    </div>
+    <button class="primary" (click)="importOrders()" [disabled]="loading()">
+      {{ loading() ? 'Загрузка…' : 'Загрузить заказы' }}
+    </button>
+  </section>
+
+  <div role="status" aria-live="polite" class="progress">
+    @if (loading()) { <p>{{ sending() ? 'Обрабатываем заказы…' : 'Загружаем тестовый набор…' }}</p> }
+    @if (report(); as result) { <p>Импорт завершён. Обработано записей: {{ result.total }}.</p> }
+  </div>
+  @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+
+  @if (report(); as result) {
+    <section aria-labelledby="results-title">
+      <div class="section-heading">
+        <h2 id="results-title">Результат последнего импорта</h2>
+        <span class="muted">{{ result.total }} записей</span>
+      </div>
+      <div class="summary">
+        @for (outcome of outcomes; track outcome) {
+          <div class="summary-item" [attr.data-outcome]="outcome">
+            <strong>{{ result.summary[outcome] }}</strong>
+            <span>{{ summaryLabels[outcome] }}</span>
+          </div>
+        }
+      </div>
+      <div class="filter-row">
+        <label for="result-filter">Показать</label>
+        <select id="result-filter" [value]="filter()" #selection (change)="setFilter(selection.value)">
+          <option value="all">Все результаты</option>
+          @for (outcome of outcomes; track outcome) {
+            <option [value]="outcome">{{ summaryLabels[outcome] }}</option>
+          }
+        </select>
+        <span class="muted">Показано: {{ visibleResults().length }}</span>
+      </div>
+      <ol class="results">
+        @for (row of visibleResults(); track row.index) {
+          <li class="result-card" [attr.data-outcome]="row.outcome">
+            <div class="record-heading">
+              <div><span class="record-index">#{{ row.index }}</span><h3>{{ row.marketplace_id || 'Без ID' }}</h3></div>
+              <span class="badge" [attr.data-outcome]="row.outcome">{{ labels[row.outcome] }}</span>
+            </div>
+            <p class="reason">{{ row.reason.message }}</p>
+            @if (row.order; as order) {
+              <dl class="amounts">
+                <div><dt>Статус заказа</dt><dd>{{ statuses[order.status] }}</dd></div>
+                <div><dt>Позиции</dt><dd>{{ money(order.items_total_kopecks) }}</dd></div>
+                <div><dt>Доставка</dt><dd>{{ money(order.delivery_total_kopecks) }}</dd></div>
+                <div><dt>Итого</dt><dd>{{ money(order.grand_total_kopecks) }}</dd></div>
+              </dl>
+              @if (order.needs_review) {
+                <div class="review"><strong>Нужна проверка суммы</strong><p>Маркетплейс: {{ money(order.marketplace_total_kopecks) }}. По позициям: {{ money(order.items_total_kopecks) }}.</p></div>
+              }
+            }
+            @for (warning of row.warnings; track $index) {
+              <p class="warning">{{ warning.message }}</p>
+            }
+          </li>
+        } @empty { <p class="empty">В этом импорте нет записей с выбранным результатом.</p> }
+      </ol>
+    </section>
+  } @else if (!loading() && !error()) {
+    <section class="empty"><h2>Результаты появятся здесь</h2><p>Нажмите «Загрузить заказы». Для каждой записи покажем итог обработки и причину отказа, если заказ не принят.</p></section>
+  }
+</main>
