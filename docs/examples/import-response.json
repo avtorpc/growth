@@ -1,0 +1,191 @@
+{
+  "shop_id": 1,
+  "total": 11,
+  "summary": {
+    "created": 7,
+    "updated": 0,
+    "unchanged": 0,
+    "duplicate": 1,
+    "rejected": 3
+  },
+  "results": [
+    {
+      "index": 1,
+      "marketplace_id": "MP-1001",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [],
+      "order": {
+        "id": 51,
+        "status": "new",
+        "needs_review": false,
+        "items_total_kopecks": 320000,
+        "marketplace_total_kopecks": 320000,
+        "delivery_total_kopecks": 30000,
+        "grand_total_kopecks": 350000
+      }
+    },
+    {
+      "index": 2,
+      "marketplace_id": "MP-1002",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [],
+      "order": {
+        "id": 52,
+        "status": "accepted",
+        "needs_review": false,
+        "items_total_kopecks": 500000,
+        "marketplace_total_kopecks": 500000,
+        "delivery_total_kopecks": 60000,
+        "grand_total_kopecks": 560000
+      }
+    },
+    {
+      "index": 3,
+      "marketplace_id": "MP-1003",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [],
+      "order": {
+        "id": 53,
+        "status": "new",
+        "needs_review": false,
+        "items_total_kopecks": 640000,
+        "marketplace_total_kopecks": 640000,
+        "delivery_total_kopecks": 0,
+        "grand_total_kopecks": 640000
+      }
+    },
+    {
+      "index": 4,
+      "marketplace_id": "MP-1004",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [],
+      "order": {
+        "id": 54,
+        "status": "new",
+        "needs_review": false,
+        "items_total_kopecks": 150000,
+        "marketplace_total_kopecks": 150000,
+        "delivery_total_kopecks": 0,
+        "grand_total_kopecks": 150000
+      }
+    },
+    {
+      "index": 5,
+      "marketplace_id": "MP-1005",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [],
+      "order": {
+        "id": 55,
+        "status": "delivered",
+        "needs_review": false,
+        "items_total_kopecks": 280000,
+        "marketplace_total_kopecks": 280000,
+        "delivery_total_kopecks": 40000,
+        "grand_total_kopecks": 320000
+      }
+    },
+    {
+      "index": 6,
+      "marketplace_id": "MP-1006",
+      "outcome": "rejected",
+      "reason": {
+        "code": "unknown_district",
+        "message": "Для района zarechye нет тарифа доставки."
+      },
+      "warnings": []
+    },
+    {
+      "index": 7,
+      "marketplace_id": "MP-1007",
+      "outcome": "rejected",
+      "reason": {
+        "code": "invalid_phone",
+        "message": "Телефон невозможно привести к формату +7XXXXXXXXXX."
+      },
+      "warnings": []
+    },
+    {
+      "index": 8,
+      "marketplace_id": "MP-1008",
+      "outcome": "rejected",
+      "reason": {
+        "code": "unknown_status",
+        "message": "Неизвестный статус заказа."
+      },
+      "warnings": []
+    },
+    {
+      "index": 9,
+      "marketplace_id": "MP-1009",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [
+        {
+          "code": "total_mismatch",
+          "message": "Сумма позиций отличается от total маркетплейса; нужна проверка."
+        }
+      ],
+      "order": {
+        "id": 56,
+        "status": "new",
+        "needs_review": true,
+        "items_total_kopecks": 360000,
+        "marketplace_total_kopecks": 300000,
+        "delivery_total_kopecks": 70000,
+        "grand_total_kopecks": 430000
+      }
+    },
+    {
+      "index": 10,
+      "marketplace_id": "MP-1001",
+      "outcome": "duplicate",
+      "reason": {
+        "code": "duplicate_in_batch",
+        "message": "Повтор ID в одной пачке; обработано первое вхождение."
+      },
+      "warnings": []
+    },
+    {
+      "index": 11,
+      "marketplace_id": "MP-1010",
+      "outcome": "created",
+      "reason": {
+        "code": "order_created",
+        "message": "Заказ создан."
+      },
+      "warnings": [],
+      "order": {
+        "id": 57,
+        "status": "cancelled",
+        "needs_review": false,
+        "items_total_kopecks": 200000,
+        "marketplace_total_kopecks": 200000,
+        "delivery_total_kopecks": 30000,
+        "grand_total_kopecks": 230000
+      }
+    }
+  ]
+}
