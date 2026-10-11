@@ -4,5 +4,6 @@ services:
         autoconfigure: true
     App\:
         resource: '../src/'
+        exclude: '../src/Import/OrderRejected.php'
     App\Controller\HealthController:
         tags: ['controller.service_arguments']

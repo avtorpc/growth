@@ -49,7 +49,8 @@ docker compose -f docker/compose.yaml exec backend php bin/console doctrine:migr
 
 Открой [http://localhost:8080](http://localhost:8080).
 Страница должна показать: «Подключение установлено. Система готова к следующему этапу».
-Сейчас реализованы окружение и структура базы; импорт и список заказов появятся на следующих этапах.
+Реализованы окружение, структура базы и API импорта. Кнопка импорта и список заказов
+на странице появятся на следующем этапе.
 
 Проверка API, если на компьютере доступен `curl`:
 
@@ -62,6 +63,20 @@ curl -fsS http://localhost:8080/api/health
 ```json
 {"status":"ok","database":"ok"}
 ```
+
+## Импорт заказов через API
+
+Из корня проекта:
+
+```sh
+curl -fsS -X POST http://localhost:8080/api/shops/1/orders/import \
+  -H 'Content-Type: application/json' \
+  --data-binary @frontend/src/assets/marketplace-orders.json
+```
+
+Первый импорт в пустой магазин создаёт 7 заказов, отклоняет 3 записи и отмечает 1 дубль.
+Повтор той же пачки возвращает 7 записей без изменений, те же 3 отказа и 1 дубль.
+В ответе есть результат и причина для каждой записи. Контракт: [IMPORT.md](IMPORT.md).
 
 ## Подключение к MySQL с компьютера
 
@@ -105,7 +120,7 @@ docker compose -f docker/compose.yaml up -d --wait
 # Пересобрать после изменения зависимостей или Docker-конфигурации
 docker compose -f docker/compose.yaml up -d --build --wait
 
-# Проверить схему базы интеграционными тестами
+# Проверить правила, схему базы и импорт
 docker compose -f docker/compose.yaml exec backend vendor/bin/phpunit
 
 # Проверить конфигурацию Symfony
@@ -152,6 +167,7 @@ docker compose --env-file docker/.env -f docker/compose.yaml exec backend php bi
   из 11 записей; доступна по `/assets/marketplace-orders.json`. Исправлены переносы строк,
   намеренные ошибки данных сохранены.
 - `docker/` — Docker Compose, Dockerfile и конфигурация Nginx.
+- [IMPORT.md](IMPORT.md) — API импорта, причины отказов и ограничения свежести данных.
 - [DATABASE.md](DATABASE.md) — таблицы, связи, начальные данные и доступы к базе.
 - [DECISIONS.md](DECISIONS.md) — журнал решений, ограничения, проверки и время работы.
 
