@@ -272,7 +272,7 @@ final class ImportTest extends TestCase
     public function testResetRemovesShopDataAndKeepsOtherShopAndTariffs(): void
     {
         $this->importer->import($this->shopId, TestData::fixture());
-        $this->connection->insert('shops', ['code' => 'reset-other-'.bin2hex(random_bytes(8)), 'name' => 'Другой магазин', 'timezone' => 'Europe/Moscow']);
+        $this->connection->insert('shops', ['code' => 'reset-other-'.bin2hex(random_bytes(8)), 'name' => 'Другой магазин', 'timezone' => 'Europe/Moscow', 'urgent_surcharge_kopecks' => 20000]);
         $otherShop = (int) $this->connection->lastInsertId();
         try {
             $other = $this->importer->import($otherShop, [TestData::order()]);
