@@ -28,11 +28,11 @@ final class OrderRepository
         return $tariffs;
     }
 
-    public function save(int $shopId, array $order, array $items): array
+    public function save(int $shopId, array $order, array $items, ?callable $onSaved = null): array
     {
         for ($attempt = 1; ; ++$attempt) {
             try {
-                return $this->connection->transactional(function () use ($shopId, $order, $items): array {
+                return $this->connection->transactional(function () use ($shopId, $order, $items, $onSaved): array {
                     $params = [$shopId, $order['marketplace_id']];
                     $query = 'SELECT * FROM orders WHERE shop_id = ? AND marketplace_id = ?';
                     // Do not gap-lock an absent order. UNIQUE resolves concurrent inserts.
@@ -71,11 +71,15 @@ final class OrderRepository
                         }
                         $this->connection->update('orders', ['outcome' => $outcome], ['id' => $id]);
                     }
-                    return [
+                    $saved = [
                         'outcome' => $outcome,
                         'reason' => ['code' => $code, 'message' => $message],
                         'order' => $this->connection->fetchAssociative('SELECT * FROM orders WHERE id = ?', [$id]),
                     ];
+                    if ($onSaved !== null) {
+                        $onSaved($saved);
+                    }
+                    return $saved;
                 });
             } catch (UniqueConstraintViolationException|RetryableException $exception) {
                 if ($attempt >= 3) {

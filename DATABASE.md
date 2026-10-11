@@ -60,6 +60,9 @@ docker compose -f docker/compose.yaml exec backend php bin/console doctrine:migr
 | `delivery_tariffs` | Тарифы магазина: `shop_id`, `district_code`, `base_price_kopecks`, `free_from_kopecks` |
 | `orders` | Заказы: `shop_id`, `marketplace_id`, `status`, данные покупателя, время создания на площадке, способ и данные доставки, денежные суммы, отметка проверки, время импорта и обновления |
 | `order_items` | Позиции: `order_id`, порядковый `position`, `sku`, `name`, `quantity`, `unit_price_kopecks`, сумма строки |
+| `order_imports` | Запуски импорта: магазин, состояние, количество, счётчики и время |
+| `order_import_records` | Все входные записи и исходы обработки, исходный JSON и снимок ответа |
+| `rejected_orders` | Отказы с исходным JSON, кодом, причиной и ссылкой на журнал |
 | `doctrine_migration_versions` | Служебная таблица истории миграций |
 
 Связи: `shops → delivery_tariffs`, `shops → orders`, `orders → order_items`.
@@ -134,3 +137,33 @@ docker compose -f docker/compose.yaml exec backend php bin/console doctrine:migr
 используют отдельные тестовые магазины и удаляют свои записи после выполнения,
 не изменяя магазин `1`. Проверены ограничения данных, уникальность в пределах
 магазина, внешние ключи, денежные итоги, исходные тарифы, UTC и конкурентный импорт.
+
+## Просмотр журнала импорта
+
+`orders.outcome` — последний успешный результат обработки заказа. Полная история
+хранится в новых таблицах. Даты журнала в UTC; порядковый position начинается с 1.
+Индексы позволяют выбирать запуски магазина и записи конкретного заказа.
+При удалении рабочего заказа ссылка order_import_records.order_id становится NULL,
+но исходные данные и снимок результата остаются. Удаление запуска удаляет его
+строки и отказы; удаление магазина каскадно удаляет его журнал. Автоматической
+очистки и срока хранения пока нет.
+
+```sql
+-- Последние запуски магазина № 1
+SELECT id, status, total, summary, started_at, finished_at
+FROM growth.order_imports WHERE shop_id = 1 ORDER BY id DESC;
+
+-- Результаты последнего запуска магазина № 1
+SELECT position, marketplace_id, order_id, outcome, raw_payload, result_payload
+FROM growth.order_import_records
+WHERE import_id = (SELECT MAX(id) FROM growth.order_imports WHERE shop_id = 1)
+ORDER BY position;
+
+-- Все отказы магазина № 1
+SELECT i.id AS import_id, l.position, l.marketplace_id,
+       r.reason_code, r.reason_message, r.raw_payload, r.rejected_at
+FROM growth.rejected_orders r
+JOIN growth.order_import_records l ON l.id = r.import_record_id
+JOIN growth.order_imports i ON i.id = l.import_id
+WHERE i.shop_id = 1 ORDER BY r.id DESC;
+```

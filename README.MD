@@ -73,7 +73,10 @@ curl -fsS http://localhost:8080/api/health
 
 Поле `orders.outcome` хранит результат последней успешной обработки сохранённого
 заказа (`created`, `updated`, `unchanged`). Оно отдельно от статуса заказа и
-не является историей импортов. Подробнее — в [IMPORT.md](IMPORT.md).
+не является историей импортов. Полный журнал сохраняется в `order_imports` и
+`order_import_records`, отказы — в `rejected_orders` вместе с исходным JSON и причиной.
+Ответ API содержит `import_id`. Подробнее — в [IMPORT.md](IMPORT.md); SQL для
+просмотра истории — в [DATABASE.md](DATABASE.md).
 
 ## Импорт заказов через API
 

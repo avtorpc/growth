@@ -196,6 +196,79 @@ final class ImportTest extends TestCase
         self::assertSame(['created' => 0, 'updated' => 0, 'unchanged' => 0, 'duplicate' => 0, 'rejected' => 0], $this->request('{"orders":[]}')[1]['summary']);
     }
 
+    public function testJournalKeepsBothImportsAndRejectedPayloads(): void
+    {
+        $fixture = TestData::fixture();
+        $first = $this->importer->import($this->shopId, $fixture);
+        $second = $this->importer->import($this->shopId, $fixture);
+        self::assertNotSame($first['import_id'], $second['import_id']);
+        foreach ([$first, $second] as $response) {
+            $run = $this->connection->fetchAssociative('SELECT * FROM order_imports WHERE id = ?', [$response['import_id']]);
+            self::assertSame('completed', $run['status']);
+            self::assertNotNull($run['finished_at']);
+            self::assertEquals($response['summary'], json_decode($run['summary'], true));
+            $records = $this->connection->fetchAllAssociative('SELECT * FROM order_import_records WHERE import_id = ? ORDER BY position', [$response['import_id']]);
+            self::assertCount(11, $records);
+            foreach ($records as $index => $record) {
+                self::assertEquals($fixture[$index], json_decode($record['raw_payload'], true));
+                self::assertEquals($response['results'][$index], json_decode($record['result_payload'], true));
+                self::assertSame($response['results'][$index]['order']['id'] ?? null, $record['order_id'] === null ? null : (int) $record['order_id']);
+            }
+            $rejected = $this->connection->fetchAllAssociative('SELECT r.*, l.position FROM rejected_orders r JOIN order_import_records l ON l.id = r.import_record_id WHERE l.import_id = ? ORDER BY l.position', [$response['import_id']]);
+            self::assertCount(3, $rejected);
+            self::assertSame(['unknown_district', 'invalid_phone', 'unknown_status'], array_column($rejected, 'reason_code'));
+            foreach ($rejected as $row) {
+                self::assertEquals($fixture[(int) $row['position'] - 1], json_decode($row['raw_payload'], true));
+            }
+        }
+    }
+
+    public function testJournalPreservesInvalidJsonValuesAndEmptyRun(): void
+    {
+        [$status, $body] = $this->request('{"orders":[null,{},[],"bad",{"status":"NEW"}]}');
+        self::assertSame(200, $status);
+        self::assertSame(5, $body['summary']['rejected']);
+        $raw = $this->connection->fetchFirstColumn('SELECT raw_payload FROM order_import_records WHERE import_id = ? ORDER BY position', [$body['import_id']]);
+        self::assertSame(['null', '{}', '[]', '"bad"', '{"status": "NEW"}'], $raw);
+        self::assertSame(5, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM rejected_orders r JOIN order_import_records l ON l.id = r.import_record_id WHERE l.import_id = ?', [$body['import_id']]));
+        $empty = $this->importer->import($this->shopId, []);
+        self::assertSame('completed', $this->connection->fetchOne('SELECT status FROM order_imports WHERE id = ?', [$empty['import_id']]));
+        self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM order_import_records WHERE import_id = ?', [$empty['import_id']]));
+    }
+
+    public function testCorrectedOrderDoesNotEraseRejectionOrHistory(): void
+    {
+        $bad = TestData::order();
+        $bad['customer']['phone'] = '123';
+        $rejected = $this->importer->import($this->shopId, [$bad]);
+        $created = $this->importer->import($this->shopId, [TestData::order()]);
+        $changed = array_replace(TestData::order(), ['status' => 'ACCEPTED']);
+        $updated = $this->importer->import($this->shopId, [$changed]);
+        self::assertSame('updated', $updated['results'][0]['outcome']);
+        self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM rejected_orders r JOIN order_import_records l ON l.id = r.import_record_id WHERE l.import_id = ?', [$rejected['import_id']]));
+        $this->connection->delete('orders', ['shop_id' => $this->shopId]);
+        $record = $this->connection->fetchAssociative('SELECT * FROM order_import_records WHERE import_id = ?', [$created['import_id']]);
+        self::assertNull($record['order_id']);
+        self::assertEquals($created['results'][0], json_decode($record['result_payload'], true));
+    }
+
+    public function testJournalFailureDoesNotLeaveAnUnloggedOrder(): void
+    {
+        $this->connection->executeStatement('CREATE TEMPORARY TABLE order_import_records (id BIGINT AUTO_INCREMENT PRIMARY KEY, import_id BIGINT, position INT, marketplace_id VARCHAR(128), order_id BIGINT, outcome VARCHAR(16), raw_payload JSON, result_payload JSON)');
+        $this->connection->executeStatement("ALTER TABLE order_import_records ADD CONSTRAINT test_no_records CHECK (position = 0)");
+        try {
+            try {
+                $this->importer->import($this->shopId, [TestData::order()]);
+                self::fail('Journal failure must fail the request.');
+            } catch (\Doctrine\DBAL\Exception $exception) {
+                self::assertSame(0, $this->orderCount());
+                self::assertSame('failed', $this->connection->fetchOne('SELECT status FROM order_imports WHERE shop_id = ?', [$this->shopId]));
+            }
+        } finally {
+            $this->connection->executeStatement('DROP TEMPORARY TABLE order_import_records');
+        }
+    }
+
     private function orderCount(): int
     {
         return (int) $this->connection->fetchOne('SELECT COUNT(*) FROM orders WHERE shop_id = ?', [$this->shopId]);

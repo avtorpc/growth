@@ -8,6 +8,7 @@ use App\Import\DeliveryCalculator;
 use App\Import\ImportService;
 use App\Import\OrderValidator;
 use App\Repository\OrderRepository;
+use App\Repository\ImportJournalRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Psr\Log\NullLogger;
@@ -26,7 +27,7 @@ final class TestData
 
     public static function importer(Connection $connection): ImportService
     {
-        return new ImportService(new OrderRepository($connection), new OrderValidator(), new DeliveryCalculator(), new NullLogger());
+        return new ImportService(new OrderRepository($connection), new OrderValidator(), new DeliveryCalculator(), new NullLogger(), new ImportJournalRepository($connection));
     }
 
     public static function order(): array

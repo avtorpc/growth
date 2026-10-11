@@ -38,7 +38,7 @@ final class ImportController
         }
         $orders = json_decode($body, true, 128, JSON_THROW_ON_ERROR)['orders'];
         try {
-            return new JsonResponse($import->import((int) $shopId, $orders));
+            return new JsonResponse($import->import((int) $shopId, $orders, $payload->orders));
         } catch (\OutOfBoundsException) {
             return $this->error('shop_not_found', 'Магазин не найден.', 404);
         } catch (Exception $exception) {
