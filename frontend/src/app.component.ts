@@ -18,6 +18,10 @@ export class AppComponent {
   private readonly destroyRef = inject(DestroyRef);
   readonly loading = signal(false);
   readonly sending = signal(false);
+  readonly resetting = signal(false);
+  readonly resetConfirmation = signal(false);
+  readonly resetMessage = signal('');
+  readonly busy = computed(() => this.loading() || this.resetting());
   readonly error = signal('');
   readonly report = signal<ImportResponse | null>(null);
   readonly filter = signal<Outcome | 'all'>('all');
@@ -45,8 +49,37 @@ export class AppComponent {
     this.filter.set(this.outcomes.find(outcome => outcome === value) ?? 'all');
   }
 
+  requestReset(): void {
+    if (this.busy()) return;
+    this.resetConfirmation.set(true);
+    this.resetMessage.set('');
+  }
+
+  resetTestData(): void {
+    if (this.busy() || !this.resetConfirmation()) return;
+    this.resetting.set(true);
+    this.error.set('');
+    this.report.set(null);
+    this.importer.resetTestData()
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.resetting.set(false)))
+      .subscribe({
+        next: () => {
+          this.resetConfirmation.set(false);
+          this.filter.set('all');
+          this.resetMessage.set('Тестовая база очищена. Можно загрузить заказы заново.');
+        },
+        error: (error: unknown) => {
+          this.error.set(error instanceof HttpErrorResponse && error.status > 0
+            ? error.error?.error?.message || 'Не удалось очистить базу. Повторите попытку.'
+            : 'Ответ на очистку не получен. Данные могли быть удалены. Повторите очистку перед новой загрузкой.');
+        },
+      });
+  }
+
   importOrders(): void {
-    if (this.loading()) return;
+    if (this.busy()) return;
+    this.resetConfirmation.set(false);
+    this.resetMessage.set('');
     this.loading.set(true);
     this.sending.set(false);
     this.error.set('');

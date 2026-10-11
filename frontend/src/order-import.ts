@@ -32,6 +32,12 @@ export interface ImportResponse {
 export class OrderImportService {
   private readonly http = inject(HttpClient);
 
+  resetTestData() {
+    return this.http.post<{ shop_id: number; status: 'cleared' }>(
+      '/api/shops/1/test-data/reset', { confirm: true },
+    ).pipe(timeout(10000));
+  }
+
   importOrders(onSending: () => void) {
     return this.http.get<{ orders: unknown[] }>('/assets/marketplace-orders.json').pipe(
       timeout(10000),

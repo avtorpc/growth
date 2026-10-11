@@ -59,3 +59,13 @@ dd { margin: 0; font-size: 15px; font-weight: 600; }
   .record-heading { gap: 8px; }
   .filter-row > span { margin-left: 0; width: 100%; }
 }
+
+.import-actions { display: flex; flex-direction: column; gap: 10px; }
+.secondary { color: #285c3e; background: #edf1ed; border: 1px solid #cbd5cc; }
+.secondary:hover:not(:disabled) { background: #e3eae3; }
+.reset-confirm { border-color: #e6bbae; background: #fff8f5; }
+.confirmation-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.danger { background: #9a3826; color: white; }
+@media (max-width: 640px) {
+  .confirmation-actions { flex-direction: column; }
+}

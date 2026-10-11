@@ -269,15 +269,66 @@ final class ImportTest extends TestCase
         }
     }
 
+    public function testResetRemovesShopDataAndKeepsOtherShopAndTariffs(): void
+    {
+        $this->importer->import($this->shopId, TestData::fixture());
+        $this->connection->insert('shops', ['code' => 'reset-other-'.bin2hex(random_bytes(8)), 'name' => 'Другой магазин', 'timezone' => 'Europe/Moscow']);
+        $otherShop = (int) $this->connection->lastInsertId();
+        try {
+            $other = $this->importer->import($otherShop, [TestData::order()]);
+            [$status, $body] = $this->request('{"confirm":true}', 'application/json', null, 'test-data/reset');
+            self::assertSame(200, $status);
+            self::assertSame('cleared', $body['status']);
+            self::assertSame(0, $this->orderCount());
+            self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM order_imports WHERE shop_id = ?', [$this->shopId]));
+            self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM order_import_records l JOIN order_imports i ON i.id = l.import_id WHERE i.shop_id = ?', [$this->shopId]));
+            self::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM rejected_orders r JOIN order_import_records l ON l.id = r.import_record_id JOIN order_imports i ON i.id = l.import_id WHERE i.shop_id = ?', [$this->shopId]));
+            self::assertSame(4, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM delivery_tariffs WHERE shop_id = ?', [$this->shopId]));
+            self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM shops WHERE id = ?', [$this->shopId]));
+            self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM orders WHERE shop_id = ?', [$otherShop]));
+            self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM order_imports WHERE id = ?', [$other['import_id']]));
+            self::assertSame(200, $this->request('{"confirm":true}', 'application/json', null, 'test-data/reset')[0]);
+            self::assertSame(7, $this->importer->import($this->shopId, TestData::fixture())['summary']['created']);
+        } finally {
+            $this->connection->delete('orders', ['shop_id' => $otherShop]);
+            $this->connection->delete('shops', ['id' => $otherShop]);
+        }
+    }
+
+    public function testResetNeedsConfirmationAndRejectsRunningImport(): void
+    {
+        $this->importer->import($this->shopId, [TestData::order()]);
+        self::assertSame(400, $this->request('{}', 'application/json', null, 'test-data/reset')[0]);
+        self::assertSame(400, $this->request('{broken', 'application/json', null, 'test-data/reset')[0]);
+        self::assertSame(415, $this->request('{"confirm":true}', 'text/plain', null, 'test-data/reset')[0]);
+        self::assertSame(404, $this->request('{"confirm":true}', 'application/json', 0, 'test-data/reset')[0]);
+        self::assertSame(404, $this->request('{"confirm":true}', 'application/json', PHP_INT_MAX, 'test-data/reset')[0]);
+        self::assertSame(1, $this->orderCount());
+        $this->connection->insert('order_imports', ['shop_id' => $this->shopId, 'total' => 1]);
+        [$status, $body] = $this->request('{"confirm":true}', 'application/json', null, 'test-data/reset');
+        self::assertSame(409, $status);
+        self::assertSame('import_in_progress', $body['error']['code']);
+        self::assertSame(1, $this->orderCount());
+    }
+
+    public function testResetIsDisabledInProduction(): void
+    {
+        $controller = new \App\Controller\TestDataResetController('prod');
+        $request = Request::create('/api/shops/1/test-data/reset', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: '{"confirm":true}');
+        $response = $controller->__invoke((string) $this->shopId, $request,
+            new \App\Repository\TestDataResetRepository($this->connection), new \Psr\Log\NullLogger());
+        self::assertSame(404, $response->getStatusCode());
+    }
+
     private function orderCount(): int
     {
         return (int) $this->connection->fetchOne('SELECT COUNT(*) FROM orders WHERE shop_id = ?', [$this->shopId]);
     }
 
-    private function request(string $json, string $contentType = 'application/json', ?int $shop = null): array
+    private function request(string $json, string $contentType = 'application/json', ?int $shop = null, string $action = 'orders/import'): array
     {
         $kernel = new Kernel('dev', true);
-        $request = Request::create('/api/shops/'.($shop ?? $this->shopId).'/orders/import', 'POST', server: ['CONTENT_TYPE' => $contentType], content: $json);
+        $request = Request::create('/api/shops/'.($shop ?? $this->shopId).'/'.$action, 'POST', server: ['CONTENT_TYPE' => $contentType], content: $json);
         try {
             $response = $kernel->handle($request);
             $kernel->terminate($request, $response);

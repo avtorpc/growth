@@ -5,18 +5,34 @@
     <p class="intro">Загрузите заказы маркетплейса и проверьте результат каждой записи.</p>
   </header>
 
-  <section class="import-panel" aria-labelledby="import-title" [attr.aria-busy]="loading()">
+  <section class="import-panel" aria-labelledby="import-title" [attr.aria-busy]="busy()">
     <div>
       <p class="eyebrow muted">МАГАЗИН № 1</p>
       <h2 id="import-title">Тестовый набор заказов</h2>
       <p>Повторная загрузка обновляет статусы существующих заказов. Ошибка в одной записи не мешает обработке остальных.</p>
     </div>
-    <button class="primary" (click)="importOrders()" [disabled]="loading()">
+    <div class="import-actions">
+    <button class="primary" (click)="importOrders()" [disabled]="busy()">
       {{ loading() ? 'Загрузка…' : 'Загрузить заказы' }}
     </button>
+    <button class="secondary" (click)="requestReset()" [disabled]="busy()">Очистить тестовую базу</button>
+    </div>
   </section>
 
+  @if (resetConfirmation()) {
+    <section class="reset-confirm" aria-labelledby="reset-title">
+      <h2 id="reset-title">Очистить данные магазина № 1?</h2>
+      <p>Будут удалены все заказы, позиции, журнал импортов и отказы этого магазина. Магазин и тарифы останутся. Отменить удаление нельзя.</p>
+      <div class="confirmation-actions">
+        <button class="danger" (click)="resetTestData()" [disabled]="busy()">{{ resetting() ? 'Очистка…' : 'Удалить тестовые данные' }}</button>
+        <button class="secondary" (click)="resetConfirmation.set(false)" [disabled]="busy()">Отмена</button>
+      </div>
+    </section>
+  }
+
   <div role="status" aria-live="polite" class="progress">
+    @if (resetting()) { <p>Очищаем тестовые данные…</p> }
+    @if (resetMessage()) { <p>{{ resetMessage() }}</p> }
     @if (loading()) { <p>{{ sending() ? 'Обрабатываем заказы…' : 'Загружаем тестовый набор…' }}</p> }
     @if (report(); as result) { <p>Импорт завершён. Обработано записей: {{ result.total }}.</p> }
   </div>
@@ -72,7 +88,7 @@
         } @empty { <p class="empty">В этом импорте нет записей с выбранным результатом.</p> }
       </ol>
     </section>
-  } @else if (!loading() && !error()) {
+  } @else if (!busy() && !error() && !resetConfirmation()) {
     <section class="empty"><h2>Результаты появятся здесь</h2><p>Нажмите «Загрузить заказы». Для каждой записи покажем итог обработки и причину отказа, если заказ не принят.</p></section>
   }
 </main>
