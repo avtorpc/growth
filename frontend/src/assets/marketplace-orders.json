@@ -1,0 +1,285 @@
+{
+  "orders": [
+    {
+      "id": "MP-1001",
+      "status": "NEW",
+      "created_at": "2026-10-08T09:00:00+03:00",
+      "customer": {
+        "name": "Анна Лебедева",
+        "phone": "+7 (900) 123-45-67"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "centre",
+        "address": "ул. Большая Садовая, 10, кв. 4",
+        "date": "2026-10-10",
+        "time_from": "14:00",
+        "time_to": "16:00"
+      },
+      "items": [
+        {
+          "sku": "B-101",
+          "name": "Букет «Нежность»",
+          "qty": 1,
+          "price": 3200
+        }
+      ],
+      "total": 3200
+    },
+    {
+      "id": "MP-1002",
+      "status": "ACCEPTED",
+      "created_at": "2026-10-10T11:00:00+03:00",
+      "customer": {
+        "name": "Игорь Власов",
+        "phone": "89001112233"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "north",
+        "address": "пр. Королёва, 5",
+        "date": "2026-10-10",
+        "time_from": "12:00",
+        "time_to": "14:00"
+      },
+      "items": [
+        {
+          "sku": "B-102",
+          "name": "Букет «Рассвет»",
+          "qty": 2,
+          "price": 2500
+        }
+      ],
+      "total": 5000
+    },
+    {
+      "id": "MP-1003",
+      "status": "NEW",
+      "created_at": "2026-10-09T10:00:00+03:00",
+      "customer": {
+        "name": "Ольга Смирнова",
+        "phone": "+79005557788"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "centre",
+        "address": "ул. Пушкинская, 22",
+        "date": "2026-10-11",
+        "time_from": "10:00",
+        "time_to": "12:00"
+      },
+      "items": [
+        {
+          "sku": "B-103",
+          "name": "Композиция «Сад»",
+          "qty": 1,
+          "price": 6400
+        }
+      ],
+      "total": 6400
+    },
+    {
+      "id": "MP-1004",
+      "status": "NEW",
+      "created_at": "2026-10-09T12:30:00+03:00",
+      "customer": {
+        "name": "Мария Кузнецова",
+        "phone": "8 900 444 33 22"
+      },
+      "delivery": {
+        "type": "pickup"
+      },
+      "items": [
+        {
+          "sku": "B-104",
+          "name": "Букет «Утро»",
+          "qty": 1,
+          "price": 1500
+        }
+      ],
+      "total": 1500
+    },
+    {
+      "id": "MP-1005",
+      "status": "DONE",
+      "created_at": "2026-10-05T15:00:00+03:00",
+      "customer": {
+        "name": "Пётр Соколов",
+        "phone": "+79001230000"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "south",
+        "address": "ул. Стачки, 100",
+        "date": "2026-10-06",
+        "time_from": "16:00",
+        "time_to": "18:00"
+      },
+      "items": [
+        {
+          "sku": "B-105",
+          "name": "Букет «Лето»",
+          "qty": 2,
+          "price": 1400
+        }
+      ],
+      "total": 2800
+    },
+    {
+      "id": "MP-1006",
+      "status": "NEW",
+      "created_at": "2026-10-09T13:00:00+03:00",
+      "customer": {
+        "name": "Елена Романова",
+        "phone": "+79001119999"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "zarechye",
+        "address": "ул. Набережная, 3",
+        "date": "2026-10-12",
+        "time_from": "11:00",
+        "time_to": "13:00"
+      },
+      "items": [
+        {
+          "sku": "B-106",
+          "name": "Букет «Весна»",
+          "qty": 1,
+          "price": 2900
+        }
+      ],
+      "total": 2900
+    },
+    {
+      "id": "MP-1007",
+      "status": "NEW",
+      "created_at": "2026-10-09T14:00:00+03:00",
+      "customer": {
+        "name": "Дмитрий Павлов",
+        "phone": "123"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "centre",
+        "address": "ул. Театральная, 7",
+        "date": "2026-10-12",
+        "time_from": "12:00",
+        "time_to": "14:00"
+      },
+      "items": [
+        {
+          "sku": "B-107",
+          "name": "Букет «Осень»",
+          "qty": 1,
+          "price": 2100
+        }
+      ],
+      "total": 2100
+    },
+    {
+      "id": "MP-1008",
+      "status": "PACKING",
+      "created_at": "2026-10-09T15:00:00+03:00",
+      "customer": {
+        "name": "Светлана Гусева",
+        "phone": "+79002223344"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "north",
+        "address": "ул. Северная, 1",
+        "date": "2026-10-12",
+        "time_from": "15:00",
+        "time_to": "17:00"
+      },
+      "items": [
+        {
+          "sku": "B-108",
+          "name": "Букет «Зима»",
+          "qty": 1,
+          "price": 3100
+        }
+      ],
+      "total": 3100
+    },
+    {
+      "id": "MP-1009",
+      "status": "NEW",
+      "created_at": "2026-10-09T16:00:00+03:00",
+      "customer": {
+        "name": "Алексей Никитин",
+        "phone": "+79003334455"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "suburb",
+        "address": "п. Радостный, 12",
+        "date": "2026-10-13",
+        "time_from": "10:00",
+        "time_to": "12:00"
+      },
+      "items": [
+        {
+          "sku": "B-109",
+          "name": "Букет «Классика»",
+          "qty": 2,
+          "price": 1800
+        }
+      ],
+      "total": 3000
+    },
+    {
+      "id": "MP-1001",
+      "status": "NEW",
+      "created_at": "2026-10-08T09:00:00+03:00",
+      "customer": {
+        "name": "Анна Лебедева",
+        "phone": "+7 (900) 123-45-67"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "centre",
+        "address": "ул. Большая Садовая, 10, кв. 4",
+        "date": "2026-10-10",
+        "time_from": "14:00",
+        "time_to": "16:00"
+      },
+      "items": [
+        {
+          "sku": "B-101",
+          "name": "Букет «Нежность»",
+          "qty": 1,
+          "price": 3200
+        }
+      ],
+      "total": 3200
+    },
+    {
+      "id": "MP-1010",
+      "status": "CANCELED",
+      "created_at": "2026-10-07T10:00:00+03:00",
+      "customer": {
+        "name": "Виктор Егоров",
+        "phone": "+79004445566"
+      },
+      "delivery": {
+        "type": "delivery",
+        "district": "centre",
+        "address": "ул. Ленина, 15",
+        "date": "2026-10-09",
+        "time_from": "18:00",
+        "time_to": "20:00"
+      },
+      "items": [
+        {
+          "sku": "B-110",
+          "name": "Букет «Праздник»",
+          "qty": 1,
+          "price": 2000
+        }
+      ],
+      "total": 2000
+    }
+  ]
+}

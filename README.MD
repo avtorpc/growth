@@ -148,6 +148,9 @@ docker compose --env-file docker/.env -f docker/compose.yaml exec backend php bi
 
 - `backend/` — монолит Symfony; `backend/migrations/` — миграции базы.
 - `frontend/` — приложение Angular.
+- [marketplace-orders.json](frontend/src/assets/marketplace-orders.json) — валидная фикстура
+  из 11 записей; доступна по `/assets/marketplace-orders.json`. Исправлены переносы строк,
+  намеренные ошибки данных сохранены.
 - `docker/` — Docker Compose, Dockerfile и конфигурация Nginx.
 - [DATABASE.md](DATABASE.md) — таблицы, связи, начальные данные и доступы к базе.
 - [DECISIONS.md](DECISIONS.md) — журнал решений, ограничения, проверки и время работы.
