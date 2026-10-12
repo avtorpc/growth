@@ -69,3 +69,14 @@ dd { margin: 0; font-size: 15px; font-weight: 600; }
 @media (max-width: 640px) {
   .confirmation-actions { flex-direction: column; }
 }
+
+/* Native desktop menus cannot be sized reliably with option styles. */
+.mobile-filter { display: none; }
+@media (max-width: 640px) {
+  .desktop-filter { display: none; }
+  .mobile-filter { display: block; width: 100%; min-width: 0; }
+  .filter-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .filter-option { min-height: 48px; padding: 12px 8px; font-size: 16px; line-height: 1.4; color: #285c3e; background: #f5f7f4; border: 1px solid #cbd5cc; overflow-wrap: anywhere; }
+  .filter-all { grid-column: 1 / -1; }
+  .filter-option[aria-pressed="true"] { background: #285c3e; color: white; border-color: #285c3e; font-weight: 650; }
+}
