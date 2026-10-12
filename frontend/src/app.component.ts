@@ -45,8 +45,8 @@ export class AppComponent {
 
   money(kopecks: number): string { return rubles.format(kopecks / 100); }
 
-  setFilter(value: string): void {
-    this.filter.set(this.outcomes.find(outcome => outcome === value) ?? 'all');
+  toggleFilter(outcome: Outcome): void {
+    this.filter.set(this.filter() === outcome ? 'all' : outcome);
   }
 
   requestReset(): void {

@@ -44,32 +44,23 @@
         <h2 id="results-title">Результат последнего импорта</h2>
         <span class="muted">{{ result.total }} записей</span>
       </div>
-      <div class="summary">
+      <p class="filter-hint muted">Нажмите на счётчик, чтобы показать нужные записи.</p>
+      <div class="summary" role="group" aria-label="Фильтр результатов импорта">
         @for (outcome of outcomes; track outcome) {
-          <div class="summary-item" [attr.data-outcome]="outcome">
+          <button class="summary-item" [attr.data-outcome]="outcome"
+            [attr.aria-pressed]="filter() === outcome"
+            [attr.aria-label]="summaryLabels[outcome] + ': ' + result.summary[outcome]"
+            (click)="toggleFilter(outcome)">
             <strong>{{ result.summary[outcome] }}</strong>
             <span>{{ summaryLabels[outcome] }}</span>
-          </div>
+          </button>
         }
       </div>
-      <div class="filter-row">
-        <label class="desktop-filter" for="result-filter">Показать</label>
-        <select class="desktop-filter" id="result-filter" [value]="filter()" #selection (change)="setFilter(selection.value)">
-          <option value="all">Все результаты</option>
-          @for (outcome of outcomes; track outcome) {
-            <option [value]="outcome">{{ summaryLabels[outcome] }}</option>
-          }
-        </select>
-        <div class="mobile-filter" role="group" aria-labelledby="mobile-filter-title">
-          <span id="mobile-filter-title">Показать</span>
-          <div class="filter-options">
-            <button class="filter-option filter-all" [attr.aria-pressed]="filter() === 'all'" (click)="setFilter('all')">Все результаты</button>
-            @for (outcome of outcomes; track outcome) {
-              <button class="filter-option" [attr.aria-pressed]="filter() === outcome" (click)="setFilter(outcome)">{{ summaryLabels[outcome] }}</button>
-            }
-          </div>
-        </div>
-        <span class="muted" role="status" aria-live="polite">Показано: {{ visibleResults().length }}</span>
+      <div class="filter-status">
+        <span class="muted" role="status" aria-live="polite">Показано: {{ visibleResults().length }} из {{ result.total }}</span>
+        @if (filter() !== 'all') {
+          <button class="show-all" (click)="filter.set('all')">Показать все</button>
+        }
       </div>
       <ol class="results">
         @for (row of visibleResults(); track row.index) {
